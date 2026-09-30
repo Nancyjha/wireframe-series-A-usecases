@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMF Analytics — Settings (A Series)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --white:#ffffff;
+  --bg:#f7f8fa;
+  --surface:#ffffff;
+  --border:#e4e7ec;
+  --border-light:#f0f2f5;
+  --purple:#6d28d9;
+  --purple-h:#5b21b6;
+  --purple-light:#ede9fe;
+  --purple-mid:#8b5cf6;
+  --text:#0f172a;
+  --text-sec:#475569;
+  --text-muted:#94a3b8;
+  --text-link:#6d28d9;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;--red-light:#fee2e2;
+  --amber:#b45309;--amber-bg:#fffbeb;--amber-border:#fde68a;
+  --green:#059669;--green-bg:#ecfdf5;--green-border:#6ee7b7;
+  --blue:#1d4ed8;--blue-bg:#eff6ff;--blue-border:#bfdbfe;
+}
+
+/* ── RESET ── */
+body{font-family:-apple-system,BlinkMacSystemFont,'Inter','Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer}
+a{text-decoration:none;color:var(--text-link)}
+
+/* ── PROTOTYPE NAV ── */
+#pnav{position:fixed;top:0;left:0;right:0;height:36px;background:#1e1b4b;z-index:9999;display:flex;align-items:center;padding:0 12px;gap:3px;overflow-x:auto;border-bottom:2px solid #312e81}
+#pnav .lbl{font-size:10px;color:#818cf8;font-weight:700;letter-spacing:.08em;white-space:nowrap;margin-right:8px;flex-shrink:0;text-transform:uppercase}
+.pb{background:none;border:1px solid #3730a3;color:#a5b4fc;font-size:11px;padding:2px 10px;border-radius:3px;white-space:nowrap;flex-shrink:0;transition:all 100ms}
+.pb:hover{background:#312e81;color:#e0e7ff}.pb.on{background:#6d28d9;border-color:#6d28d9;color:#fff}
+.pdiv{width:1px;height:16px;background:#312e81;flex-shrink:0;margin:0 4px}
+
+/* ── SCREENS ── */
+.screen{display:none;padding-top:36px;min-height:100vh;flex-direction:column}.screen.on{display:flex}
+
+/* ── TOP NAV — PRISM-faithful ── */
+.topnav{
+  height:48px;background:var(--white);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  position:sticky;top:36px;z-index:100;flex-shrink:0;
+}
+.tn-logo{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--border);flex-shrink:0}
+.tn-logomark{width:26px;height:26px;background:var(--purple);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;letter-spacing:-.5px}
+.tn-brand{padding:0 14px;font-size:13px;font-weight:700;color:var(--text);border-right:1px solid var(--border);height:48px;display:flex;align-items:center;flex-shrink:0;letter-spacing:-.2px}
+.tn-bc{display:flex;align-items:center;gap:5px;padding:0 14px;font-size:13px;color:var(--text-sec);flex:1;overflow:hidden}
+.tn-bc a{color:var(--text-link);cursor:pointer;white-space:nowrap}.tn-bc a:hover{text-decoration:underline}
+.tn-bc .sep{color:var(--text-muted);font-size:12px;flex-shrink:0}.tn-bc .cur{color:var(--text-sec);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tn-right{display:flex;align-items:center;height:48px;margin-left:auto;flex-shrink:0}
+.tn-btn{height:48px;padding:0 14px;display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-sec);border-left:1px solid var(--border);cursor:pointer;transition:background 100ms;white-space:nowrap}
+.tn-btn:hover{background:var(--bg)}
+.org-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text-sec);background:var(--bg);border:1px solid var(--border);padding:3px 10px;border-radius:4px;cursor:pointer;transition:border-color 100ms}
+.org-pill:hover{border-color:var(--purple-mid)}
+
+/* ── SHELL ── */
+.shell{display:flex;flex:1;min-height:0;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:48px;background:var(--white);border-right:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px}
+.sib{width:34px;height:34px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;color:var(--text-muted);transition:all 100ms;position:relative}
+.sib:hover{background:var(--purple-light);color:var(--purple)}.sib.on{background:var(--purple-light);color:var(--purple)}
+.sib-gap{margin-top:auto}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;min-width:0}
+
+/* ── RIGHT RAIL ── */
+.right-rail{width:40px;background:var(--white);border-left:1px solid var(--border);flex-shrink:0;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:2px}
+.rrb{width:26px;height:26px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--text-muted);cursor:pointer;transition:all 100ms}
+.rrb:hover{background:var(--purple-light);color:var(--purple)}
+
+/* ── SETTINGS LAYOUT ── */
+.settings-wrap{display:flex;flex:1;min-height:0}
+.settings-nav{
+  width:196px;flex-shrink:0;background:var(--white);border-right:1px solid var(--border);
+  padding:20px 0;display:flex;flex-direction:column;
+}
+.sn-group-label{font-size:11px;font-weight:600;color:var(--text-muted);padding:0 16px 6px;letter-spacing:.04em}
+.sn-item{
+  display:flex;align-items:center;gap:9px;padding:8px 16px;
+  font-size:13px;color:var(--text-sec);cursor:pointer;
+  border-left:2px solid transparent;transition:all 80ms;
+  position:relative;
+}
+.sn-item:hover{background:var(--bg);color:var(--text)}
+.sn-item.on{color:var(--purple);background:var(--purple-light);border-left-color:var(--purple);font-weight:500}
+.sn-item .sn-icon{font-size:14px;flex-shrink:0;width:18px;text-align:center}
+.sn-item .sn-badge{font-size:10px;background:var(--purple-light);color:var(--purple);padding:1px 5px;border-radius:8px;margin-left:auto;font-weight:600}
+.sn-item .sn-warn{width:7px;height:7px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-left:auto}
+.sn-item .sn-err{width:7px;height:7px;border-radius:50%;background:var(--red);flex-shrink:0;margin-left:auto}
+.sn-divider{height:1px;background:var(--border-light);margin:8px 0}
+.adv-toggle{
+  display:flex;align-items:center;gap:8px;padding:8px 16px;
+  font-size:12px;color:var(--text-muted);cursor:pointer;
+  transition:color 100ms;
+}
+.adv-toggle:hover{color:var(--text-sec)}
+.settings-content{flex:1;padding:24px 28px;overflow-y:auto;min-width:0}
+
+/* ── PAGE HEADER ── */
+.page-title{font-size:21px;font-weight:600;color:var(--text);margin-bottom:2px;letter-spacing:-.3px}
+.page-desc{font-size:13px;color:var(--text-sec);margin-bottom:20px;line-height:1.5}
+
+/* ── STATUS ROW ── */
+.status-row{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.estate-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:4px}
+.estate-status.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.estate-status.warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.estate-status.fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.status-note{font-size:12px;color:var(--text-sec)}
+
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--white);margin-bottom:16px}
+.kpi-strip-4{grid-template-columns:repeat(4,1fr)}
+.kpi-strip-3{grid-template-columns:repeat(3,1fr)}
+.kpi-tile{padding:14px 18px;background:var(--white);border-right:1px solid var(--border);position:relative;transition:background 80ms}
+.kpi-tile:last-child{border-right:none}
+.kpi-tile::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.kpi-tile.green::before{background:var(--green)}
+.kpi-tile.amber::before{background:var(--amber)}
+.kpi-tile.red::before{background:var(--red)}
+.kpi-tile.blue::before{background:var(--blue)}
+.kpi-tile.neutral::before{background:var(--border)}
+.kpi-lbl{font-size:11px;color:var(--text-muted);margin-bottom:4px;font-weight:500}
+.kpi-val{font-size:22px;font-weight:600;color:var(--text);line-height:1;margin-bottom:3px}
+.kpi-val.green{color:var(--green)}.kpi-val.amber{color:var(--amber)}.kpi-val.red{color:var(--red)}
+.kpi-sub{font-size:11px;color:var(--text-muted);line-height:1.4}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:12px 18px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-desc{font-size:12px;color:var(--text-muted);margin-top:1px}
+.card-body{padding:18px}
+
+/* ── BANNERS ── */
+.banner{border-radius:5px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.5}
+.b-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+.b-body{flex:1}.b-title{font-weight:600;margin-bottom:2px}.b-desc{color:var(--text-sec)}
+.b-action{margin-left:auto;flex-shrink:0;align-self:center;padding-left:12px}
+.banner.info{background:var(--blue-bg);border:1px solid var(--blue-border)}.banner.info .b-icon,.banner.info .b-title{color:var(--blue)}
+.banner.warn{background:var(--amber-bg);border:1px solid var(--amber-border)}.banner.warn .b-icon,.banner.warn .b-title{color:var(--amber)}
+.banner.fail{background:var(--red-bg);border:1px solid var(--red-border)}.banner.fail .b-icon,.banner.fail .b-title{color:var(--red)}
+.banner.ok{background:var(--green-bg);border:1px solid var(--green-border)}.banner.ok .b-icon,.banner.ok .b-title{color:var(--green)}
+
+/* ── TABLE ── */
+.tbl-wrap{background:var(--white);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.tbl-head{padding:10px 16px;border-bottom:1px solid var(--border-light);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--border)}
+th{padding:8px 14px;text-align:left;font-size:11px;font-weight:600;color:var(--text-sec);background:var(--bg);white-space:nowrap;user-select:none}
+td{padding:10px 14px;font-size:13px;color:var(--text);border-bottom:1px solid var(--border-light);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.cl{cursor:pointer}
+tbody tr.cl:hover td{background:#fafbfe}
+/* left border on first cell by row state */
+tbody tr.row-ok td:first-child{box-shadow:inset 2px 0 0 var(--green)}
+tbody tr.row-warn td:first-child{box-shadow:inset 2px 0 0 var(--amber)}
+tbody tr.row-fail td:first-child{box-shadow:inset 2px 0 0 var(--red)}
+tbody tr.row-neu td:first-child{box-shadow:inset 2px 0 0 var(--border)}
+.td-sec{color:var(--text-sec)}.td-muted{color:var(--text-muted)}.td-red{color:var(--red);font-weight:600}.td-amber{color:var(--amber);font-weight:500}.td-green{color:var(--green);font-weight:500}.td-link{color:var(--text-link);cursor:pointer}.td-link:hover{text-decoration:underline}
+.mono{font-family:'SFMono-Regular',Consolas,monospace;font-size:12px}
+.tbl-foot{padding:8px 14px;font-size:12px;color:var(--text-muted);background:var(--bg);border-top:1px solid var(--border-light);display:flex;align-items:center;justify-content:space-between}
+
+/* ── STATUS BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:600;white-space:nowrap}
+.badge.ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
+.badge.warn{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
+.badge.fail{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.badge.neu{background:var(--bg);color:var(--text-muted);border:1px solid var(--border)}
+.badge.info{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+
+/* ── FRESHNESS BAR ── */
+.fresh-wrap{display:flex;align-items:center;gap:6px}
+.fresh-bar{height:4px;width:64px;background:var(--border);border-radius:2px;flex-shrink:0}
+.fresh-fill{height:100%;border-radius:2px}
+.fresh-label{font-size:11px;font-weight:500;white-space:nowrap}
+.fresh-ok{color:var(--green)}.fresh-warn{color:var(--amber)}.fresh-fail{color:var(--red)}
+
+/* ── GDG GENERATION VIS ── */
+.gdg-strip{display:flex;gap:2px;align-items:flex-end;flex-wrap:wrap}
+.gdg-bar{width:16px;border-radius:2px 2px 0 0;cursor:pointer;transition:opacity 100ms;position:relative}
+.gdg-bar:hover{opacity:.75}
+.gdg-bar.ok{background:var(--green)}
+.gdg-bar.partial{background:var(--amber)}
+.gdg-bar.fail{background:var(--red)}
+.gdg-bar.absent{background:var(--border)}
+.gdg-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.gdg-leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-sec)}
+.gdg-leg-swatch{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── EXPAND ROW ── */
+.exp-row td{padding:0;background:var(--bg)}
+.exp-inner{padding:14px 18px 14px 44px;border-top:1px solid var(--border-light)}
+.exp-grid{display:grid;grid-template-columns:160px 1fr;gap:4px 12px;font-size:12px;margin-bottom:10px}
+.exp-k{color:var(--text-muted)}.exp-v{color:var(--text-sec);font-family:monospace;font-size:11px}
+.exp-v.warn{color:var(--amber)}.exp-v.fail{color:var(--red)}.exp-v.ok{color:var(--green)}
+
+/* ── FORMS ── */
+.form-row{display:flex;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.form-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
+.form-field.narrow{flex:0 0 180px;min-width:160px}
+.form-field.xnarrow{flex:0 0 120px;min-width:100px}
+.form-label{font-size:12px;font-weight:500;color:var(--text-sec)}
+.req{color:var(--red)}
+.form-input,.form-select{
+  height:34px;background:var(--white);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-size:13px;padding:0 11px;font-family:inherit;outline:none;width:100%;
+  transition:border-color 120ms;
+}
+.form-input:focus,.form-select:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(109,40,217,.08)}
+.form-input::placeholder{color:var(--text-muted)}
+.form-select{cursor:pointer}
+.form-helper{font-size:11px;color:var(--text-muted);line-height:1.4}
+.form-helper.hi{color:var(--purple)}
+.form-actions{display:flex;gap:8px;margin-top:4px}
+.form-section{margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border-light)}
+.form-section:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.form-section-title{font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:10px}
+
+/* ── THRESHOLD TILES ── */
+.thresh-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.thresh-tile{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:14px}
+.thresh-lbl{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.thresh-why{font-size:11px;color:var(--text-muted);margin-bottom:9px;line-height:1.45}
+.thresh-inp-row{display:flex;align-items:center;gap:8px}
+.thresh-inp{
+  width:100px;height:34px;background:var(--white);border:1px solid var(--border);
+  border-radius:4px;color:var(--text);font-size:15px;font-weight:600;
+  padding:0 11px;font-family:inherit;outline:none;transition:border-color 120ms;
+}
+.thresh-inp:focus{border-color:var(--purple)}
+.thresh-unit{font-size:11px;color:var(--text-muted)}
+
+/* ── LPAR EDIT LIST ── */
+.lpar-list{padding:0 18px 4px}
+.lpar-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border-light)}
+.lpar-row:last-child{border-bottom:none}
+.lpar-sysid{font-family:monospace;font-size:13px;font-weight:700;color:var(--text);width:64px;flex-shrink:0}
+.lpar-arrow{color:var(--text-muted);font-size:12px;flex-shrink:0}
+.lpar-name-inp{
+  height:30px;background:var(--white);border:1px solid var(--border);border-radius:4px;
+  color:var(--text);font-size:13px;padding:0 9px;font-family:inherit;outline:none;flex:1;min-width:120px;
+  transition:border-color 120ms;
+}
+.lpar-name-inp:focus{border-color:var(--purple)}
+.lpar-env-sel{
+  height:30px;background:var(--white);border:1px solid var(--border);border-radius:4px;
+  color:var(--text-sec);font-size:12px;padding:0 8px;font-family:inherit;outline:none;
+  cursor:pointer;flex-shrink:0;width:110px;
+}
+.lpar-suppress{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-sec);flex-shrink:0;cursor:pointer;white-space:nowrap}
+.lpar-suppress input{accent-color:var(--purple);cursor:pointer}
+.lpar-hw{font-size:11px;color:var(--text-muted);flex-shrink:0;white-space:nowrap;max-width:200px;overflow:hidden;text-overflow:ellipsis}
+.lpar-col-heads{
+  display:flex;align-items:center;gap:10px;padding:0 0 6px;
+  border-bottom:1px solid var(--border-light);margin-bottom:0;
+  font-size:11px;color:var(--text-muted);font-weight:500;
+}
+
+/* ── USERS TABLE ── */
+.user-row-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+
+/* ── RUN HISTORY ── */
+.run-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.run-dot.ok{background:var(--green)}.run-dot.warn{background:var(--amber)}.run-dot.fail{background:var(--red)}
+.run-err-detail{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:10px 12px;font-size:12px;color:var(--text-sec);margin-top:8px;line-height:1.6}
+.run-err-detail .mono{color:var(--text-link)}
+
+/* ── ADVANCED SECTION ── */
+.adv-section{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:14px;margin-top:14px}
+.adv-title{font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.adv-note{font-size:11px;color:var(--text-muted);margin-bottom:12px;line-height:1.45;background:var(--amber-bg);border:1px solid var(--amber-border);border-radius:4px;padding:7px 10px}
+
+/* ── DB2 NOTICE ── */
+.db2-notice{display:flex;gap:10px;align-items:flex-start;padding:12px 18px;border-bottom:1px solid var(--border-light)}
+.db2-notice:last-child{border-bottom:none}
+.db2-n-icon{font-size:14px;flex-shrink:0;color:var(--amber);margin-top:1px}
+.db2-n-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.db2-n-desc{font-size:12px;color:var(--text-muted);line-height:1.5}
+.db2-n-code{font-family:monospace;font-size:11px;color:var(--purple);background:var(--purple-light);padding:1px 5px;border-radius:3px}
+
+/* ── EMPTY STATE ── */
+.empty-hero{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:60px 24px;text-align:center;
+}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:.3}
+.empty-title{font-size:18px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty-desc{font-size:13px;color:var(--text-sec);line-height:1.6;max-width:400px;margin-bottom:20px}
+.empty-sub{font-size:12px;color:var(--text-muted);margin-top:16px}
+
+/* ── PROGRESS BARS ── */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px}
+.prog-label{color:var(--text-sec);width:56px;flex-shrink:0;font-family:monospace;font-size:11px}
+.prog-track{flex:1;height:5px;background:var(--border);border-radius:3px}
+.prog-fill{height:100%;border-radius:3px;background:var(--purple);transition:width .3s}
+.prog-pct{color:var(--text-muted);width:32px;text-align:right;flex-shrink:0}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:4px;font-size:12px;font-weight:500;cursor:pointer;border:none;font-family:inherit;transition:all 100ms;white-space:nowrap;line-height:1}
+.btn-p{background:var(--purple);color:#fff}.btn-p:hover{background:var(--purple-h)}
+.btn-s{background:var(--white);border:1px solid var(--border);color:var(--text-sec)}.btn-s:hover{border-color:var(--purple);color:var(--purple)}
+.btn-g{background:transparent;color:var(--text-sec);padding:6px 8px;border:none}.btn-g:hover{background:var(--bg);border-radius:4px}
+.btn-ghost-danger{background:transparent;color:var(--red);padding:6px 8px;border:none;font-size:12px}.btn-ghost-danger:hover{background:var(--red-bg);border-radius:4px}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+/* ── TOGGLE SWITCH ── */
+.toggle-wrap{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-sec)}
+.toggle{width:34px;height:18px;background:var(--border);border-radius:9px;cursor:pointer;position:relative;transition:background 150ms;flex-shrink:0}
+.toggle.on{background:var(--purple)}
+.toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left 150ms;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{left:18px}
+
+/* ── MODAL ── */
+.mbd{display:none;position:fixed;inset:0;background:rgba(15,23,42,.4);z-index:500;align-items:center;justify-content:center;padding:20px}
+.mbd.on{display:flex}
+.modal{background:var(--white);border:1px solid var(--border);border-radius:8px;max-width:96vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.18)}
+.m-head{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:10}
+.m-title{font-size:15px;font-weight:600;color:var(--text)}
+.m-sub{font-size:12px;color:var(--text-muted);margin-top:2px}
+.m-close{width:26px;height:26px;background:none;border:none;color:var(--text-muted);font-size:17px;cursor:pointer;border-radius:4px;display:flex;align-items:center;justify-content:center;transition:all 80ms}
+.m-close:hover{background:var(--bg);color:var(--text)}
+.m-body{padding:18px 20px}
+.m-foot{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;position:sticky;bottom:0;background:var(--white)}
+
+/* ── TOAST ── */
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:9998}
+.toast{background:var(--white);border:1px solid var(--border);border-radius:5px;padding:10px 14px;font-size:12px;color:var(--text);display:flex;align-items:center;gap:8px;min-width:240px;max-width:340px;box-shadow:0 4px 20px rgba(0,0,0,.12);animation:tin 180ms ease-out}
+.toast.ok{border-left:3px solid var(--green)}.toast.fail{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--blue)}.toast.warn{border-left:3px solid var(--amber)}
+@keyframes tin{from{transform:translateY(5px);opacity:0}to{opacity:1}}
+.t-x{color:var(--text-muted);cursor:pointer;margin-left:auto;flex-shrink:0;font-size:14px;line-height:1}
+
+/* ── AI FAB ── */
+.ai-fab{position:fixed;bottom:22px;right:22px;width:42px;height:42px;background:var(--purple);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(109,40,217,.38);font-size:17px;color:#fff;border:none;z-index:200;transition:all 120ms}
+.ai-fab:hover{background:var(--purple-h);transform:scale(1.06)}
+
+/* ── SPINNING INDICATOR ── */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-ring{width:10px;height:10px;border:2px solid rgba(109,40,217,.2);border-top-color:var(--purple);border-radius:50%;animation:spin .6s linear infinite;display:inline-block;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+.pulsing{animation:pulse 1.4s ease-in-out infinite}
+
+.flex-r{display:flex;align-items:center;gap:8px}.ml-a{margin-left:auto}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- ── PROTOTYPE NAV ── -->
+<div id="pnav">
+  <span class="lbl">A Series — Settings</span>
+  <button class="pb on" onclick="go('s1')">1 · System Health (all good)</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s2')">2 · System Health (data stale)</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s3')">3 · LPARs</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s4')">4 · Ingest Schedule</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s5')">5 · Thresholds</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s6')">6 · Users</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s7')">7 · Run History</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s8')">8 · Empty State (first run)</button>
+  <div class="pdiv"></div>
+  <button class="pb" onclick="go('s9')">9 · Ingest running (live)</button>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 1 — SYSTEM HEALTH (healthy)
+     What it shows: All 4 LPARs are reporting.
+     Last night's ingest worked. z/OSMF is reachable.
+     The GDG strip shows 30 days of successful ingests.
+     One click on any LPAR row expands its detail.
+════════════════════════════════════════════════════ -->
+<div class="screen on" id="s1">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right">
+      <div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div>
+      <div class="tn-btn" title="Help">?</div>
+    </div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib" title="Dashboard" onclick="toast('Dashboard — no data yet in this prototype','info')">⊞</div>
+      <div class="sib" title="Findings">⚑</div>
+      <div class="sib" title="CPU">◫</div>
+      <div class="sib" title="Jobs">◻</div>
+      <div class="sib" title="DB2">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div>
+      <div class="sib on" title="Settings">⚙</div>
+      <div class="sib" title="You">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item on" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle" onclick="toast('Advanced settings expanded','info')">
+            <span style="font-size:12px">›</span> Advanced
+          </div>
+        </nav>
+
+        <div class="settings-content">
+          <div class="page-title">System Health</div>
+          <div class="page-desc">Is your mainframe data current? This page shows whether each LPAR is reporting, when the last ingest ran, and whether tonight's run can proceed.</div>
+
+          <!-- STATUS + REFRESH -->
+          <div class="status-row">
+            <div class="estate-status ok">● All systems current</div>
+            <span class="status-note">Last ingest: 24 Sep 2026 · 03:47 AM · 4,832,441 records</span>
+            <div class="ml-a flex-r">
+              <button class="btn btn-s btn-sm" onclick="toast('Refreshed','ok')">↺ Refresh</button>
+              <button class="btn btn-s btn-sm" onclick="go('s9')">▶ Trigger ingest</button>
+            </div>
+          </div>
+
+          <!-- KPI STRIP -->
+          <div class="kpi-strip kpi-strip-4">
+            <div class="kpi-tile green">
+              <div class="kpi-lbl">LPARs reporting</div>
+              <div class="kpi-val green">4 / 4</div>
+              <div class="kpi-sub">PROD1 · PROD2 · TEST1 · DR1</div>
+            </div>
+            <div class="kpi-tile green">
+              <div class="kpi-lbl">Last ingest</div>
+              <div class="kpi-val" style="font-size:16px;color:var(--green);margin-top:3px">✓ Completed</div>
+              <div class="kpi-sub">03:47 AM · 47m 12s · 99.97% parse rate</div>
+            </div>
+            <div class="kpi-tile green">
+              <div class="kpi-lbl">z/OSMF</div>
+              <div class="kpi-val" style="font-size:16px;color:var(--green);margin-top:3px">✓ Reachable</div>
+              <div class="kpi-sub">zosmf.contoso.com:9443 · 8ms</div>
+            </div>
+            <div class="kpi-tile green">
+              <div class="kpi-lbl">Next ingest</div>
+              <div class="kpi-val" style="font-size:15px;color:var(--text);margin-top:3px">25 Sep · 03:00 AM</div>
+              <div class="kpi-sub">Will read PROD.SMF.GDG(0)</div>
+            </div>
+          </div>
+
+          <!-- LPAR FRESHNESS TABLE -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">LPAR data freshness</div>
+                <div class="card-desc">LPARs are found automatically from your SMF records. Click a row to see detail.</div>
+              </div>
+              <button class="btn btn-s btn-sm" onclick="go('s3')">Manage LPARs</button>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>System ID</th>
+                  <th>Display name</th>
+                  <th>Last SMF record</th>
+                  <th>Age</th>
+                  <th>Records (last run)</th>
+                  <th>SMF types seen</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="cl row-ok" onclick="toggleExp('exp-p1',this)">
+                  <td class="mono" style="font-weight:700">PROD1</td>
+                  <td class="td-sec">Production 1</td>
+                  <td class="mono td-sec" style="font-size:12px">24 Sep 23:45</td>
+                  <td>
+                    <div class="fresh-wrap">
+                      <div class="fresh-bar"><div class="fresh-fill" style="width:96%;background:var(--green)"></div></div>
+                      <span class="fresh-label fresh-ok">4h ago</span>
+                    </div>
+                  </td>
+                  <td class="mono">2,841,220</td>
+                  <td class="td-muted" style="font-size:11px">30 · 70 · 72 · 100 · 101 · 14</td>
+                  <td><span class="badge ok">Current</span></td>
+                </tr>
+                <tr class="exp-row" id="exp-p1" style="display:none">
+                  <td colspan="7">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">Hardware detected</span><span class="exp-v">IBM z15 (3907) · 2 CP engines · 13,065 MSU entitled</span>
+                        <span class="exp-k">RMF interval</span><span class="exp-v">15 min · detected from SMF 70 record spacing</span>
+                        <span class="exp-k">SMF types present</span><span class="exp-v">14 · 30 · 70 · 72 · 89 · 100 · 101</span>
+                        <span class="exp-k">Missing types</span><span class="exp-v warn">SMF 80 (RACF) — not in GDG. Security findings will not fire. Ask your SMF administrator to include SMF 80 in the archival GDG.</span>
+                        <span class="exp-k">First record seen</span><span class="exp-v">01 Jan 2026 · generation 0180</span>
+                        <span class="exp-k">Total records stored</span><span class="exp-v">142,831,204 across 215 runs</span>
+                        <span class="exp-k">Parser warnings (last run)</span><span class="exp-v ok">None</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr class="cl row-ok" onclick="toggleExp('exp-p2',this)">
+                  <td class="mono" style="font-weight:700">PROD2</td>
+                  <td class="td-sec">Production 2</td>
+                  <td class="mono td-sec" style="font-size:12px">24 Sep 23:45</td>
+                  <td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:96%;background:var(--green)"></div></div><span class="fresh-label fresh-ok">4h ago</span></div></td>
+                  <td class="mono">1,204,882</td>
+                  <td class="td-muted" style="font-size:11px">30 · 70 · 72</td>
+                  <td><span class="badge ok">Current</span></td>
+                </tr>
+                <tr class="exp-row" id="exp-p2" style="display:none">
+                  <td colspan="7">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">Hardware detected</span><span class="exp-v">IBM z15 (3907) · 1 CP engine · 8,120 MSU entitled</span>
+                        <span class="exp-k">SMF types present</span><span class="exp-v">30 · 70 · 72 only — DB2 reports are hidden for this LPAR (no SMF 100/101 records)</span>
+                        <span class="exp-k">Parser warnings</span><span class="exp-v ok">None</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr class="cl row-ok" onclick="toggleExp('exp-t1',this)">
+                  <td class="mono" style="font-weight:700">TEST1</td>
+                  <td class="td-sec">Test / QA <span class="badge neu" style="font-size:10px;margin-left:4px">Findings suppressed</span></td>
+                  <td class="mono td-sec" style="font-size:12px">24 Sep 23:30</td>
+                  <td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:92%;background:var(--green)"></div></div><span class="fresh-label fresh-ok">4h ago</span></div></td>
+                  <td class="mono">481,204</td>
+                  <td class="td-muted" style="font-size:11px">30 · 70 · 100</td>
+                  <td><span class="badge ok">Current</span></td>
+                </tr>
+                <tr class="exp-row" id="exp-t1" style="display:none">
+                  <td colspan="7">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">Findings suppressed</span><span class="exp-v">Yes — this LPAR is tagged Test. Its data is available on report pages via the LPAR filter but excluded from the dashboard and findings table.</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr class="cl row-warn" onclick="toggleExp('exp-dr1',this)">
+                  <td class="mono" style="font-weight:700;color:var(--amber)">DR1</td>
+                  <td class="td-sec">Disaster Recovery <span class="badge neu" style="font-size:10px;margin-left:4px">Findings suppressed</span></td>
+                  <td class="mono" style="font-size:12px;color:var(--amber)">23 Sep 21:30</td>
+                  <td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:18%;background:var(--amber)"></div></div><span class="fresh-label fresh-warn">26h ago</span></div></td>
+                  <td class="mono td-muted">—</td>
+                  <td class="td-muted" style="font-size:11px">Not in last GDG</td>
+                  <td><span class="badge warn">Stale</span></td>
+                </tr>
+                <tr class="exp-row" id="exp-dr1" style="display:none">
+                  <td colspan="7">
+                    <div class="exp-inner">
+                      <div class="banner warn" style="margin-bottom:10px">
+                        <div class="b-icon">⚠</div>
+                        <div class="b-body">
+                          <div class="b-title">DR1 was absent from the last 2 GDG generations</div>
+                          <div class="b-desc">DR1 appeared in generations 0213 and 0214 but not in 0215 (24 Sep). This is expected if DR1 was quiesced during the 24 Sep batch window. If DR1 should have been active, verify with your systems team that DR1 SMF records are included in <span class="mono" style="color:var(--text-link)">PROD.SMF.GDG</span>.</div>
+                        </div>
+                      </div>
+                      <div class="exp-grid">
+                        <span class="exp-k">Last seen in generation</span><span class="exp-v">0213 · 23 Sep 2026</span>
+                        <span class="exp-k">Staleness threshold</span><span class="exp-v">26h (your configured threshold) — DR1 is at the boundary</span>
+                        <span class="exp-k">Findings suppressed</span><span class="exp-v">Yes — tagged DR. Stale alert still fires in System Health regardless of suppression.</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- GDG STRIP -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">GDG generation coverage</div>
+                <div class="card-desc">PROD.SMF.GDG · last 30 generations · gaps mean missed archival windows or empty datasets</div>
+              </div>
+              <span style="font-size:12px;color:var(--text-muted)">Gen 0186 – 0215</span>
+            </div>
+            <div class="card-body">
+              <div class="gdg-strip" id="gdg1"></div>
+              <div class="gdg-legend" style="margin-top:10px">
+                <div class="gdg-leg-item"><div class="gdg-leg-swatch" style="background:var(--green)"></div>Ingested</div>
+                <div class="gdg-leg-item"><div class="gdg-leg-swatch" style="background:var(--amber)"></div>Partial parse</div>
+                <div class="gdg-leg-item"><div class="gdg-leg-swatch" style="background:var(--red)"></div>Failed</div>
+                <div class="gdg-leg-item"><div class="gdg-leg-swatch" style="background:var(--border)"></div>Empty / absent</div>
+              </div>
+              <p style="font-size:11px;color:var(--text-muted);margin-top:8px">Generation 0201 was empty — public holiday, no batch ran. Generation 0215 ingested today at 03:47 AM.</p>
+            </div>
+          </div>
+
+          <!-- ZOSMF + RULE ENGINE -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div class="card" style="margin-bottom:0">
+              <div class="card-head"><div class="card-title">z/OSMF</div><span class="badge ok">Reachable</span></div>
+              <div class="card-body" style="padding:12px 18px">
+                <div class="exp-grid">
+                  <span class="exp-k">Host</span><span class="exp-v">zosmf.contoso.com:9443</span>
+                  <span class="exp-k">z/OSMF version</span><span class="exp-v">V2R5</span>
+                  <span class="exp-k">Last checked</span><span class="exp-v">24 Sep 03:14 AM · 8ms</span>
+                  <span class="exp-k">Next read</span><span class="exp-v">PROD.SMF.GDG(0) · 25 Sep 03:00 AM</span>
+                  <span class="exp-k">Dataset available</span><span class="exp-v ok">Not currently enqueued</span>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="margin-bottom:0">
+              <div class="card-head"><div class="card-title">Rule engine</div><span class="badge ok">Last run OK</span></div>
+              <div class="card-body" style="padding:12px 18px">
+                <div class="exp-grid">
+                  <span class="exp-k">Last evaluated</span><span class="exp-v">24 Sep 03:52 AM</span>
+                  <span class="exp-k">Rules evaluated</span><span class="exp-v">12 rules · 3 LPARs (TEST1 suppressed)</span>
+                  <span class="exp-k">Findings generated</span><span class="exp-v">7 · 0 critical · 2 high · 5 medium</span>
+                  <span class="exp-k">Rules skipped</span><span class="exp-v warn">SMF80-RACF-01 — SMF 80 not present in GDG</span>
+                  <span class="exp-k">AI recommendations</span><span class="exp-v">4 generated · 03:54 AM</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb" title="Info">ℹ</div><div class="rrb" title="Filter">⧩</div></div>
+  </div>
+  <button class="ai-fab" title="Ask AI">✦</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 2 — SYSTEM HEALTH (data stale — z/OSMF down)
+     What it shows: The portal hasn't been able to pull
+     new data for 3 days because z/OSMF went down.
+     Every LPAR row is red. There's a clear explanation
+     and one action: fix z/OSMF then trigger a backfill.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s2">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right">
+      <div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div>
+      <div class="tn-btn">?</div>
+    </div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div>
+      <div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item on"><span class="sn-icon">◉</span> System Health <span class="sn-err"></span></div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">System Health</div>
+          <div class="page-desc">Is your mainframe data current? This page shows whether each LPAR is reporting, when the last ingest ran, and whether tonight's run can proceed.</div>
+
+          <div class="status-row">
+            <div class="estate-status fail">✗ Data 3 days behind</div>
+            <span class="status-note">Last ingest: 21 Sep 2026 · Two windows missed</span>
+            <div class="ml-a flex-r">
+              <button class="btn btn-s btn-sm" onclick="toast('Refreshed — z/OSMF still unreachable','fail')">↺ Refresh</button>
+            </div>
+          </div>
+
+          <!-- ROOT CAUSE BANNER — specific, actionable -->
+          <div class="banner fail">
+            <div class="b-icon">✗</div>
+            <div class="b-body">
+              <div class="b-title">z/OSMF has been unreachable since Tuesday 22 Sep — two ingest windows missed</div>
+              <div class="b-desc">The portal cannot read your GDG until z/OSMF is restored. Your dashboard and reports still show 21 Sep data. Once z/OSMF is back, come to Run History and trigger a backfill for 22–23 Sep — the portal will catch up automatically.</div>
+            </div>
+            <div class="b-action">
+              <button class="btn btn-s btn-sm" onclick="go('s7')">Run History →</button>
+            </div>
+          </div>
+
+          <!-- KPI STRIP — all red -->
+          <div class="kpi-strip kpi-strip-4">
+            <div class="kpi-tile red">
+              <div class="kpi-lbl">LPARs reporting</div>
+              <div class="kpi-val red">0 / 4</div>
+              <div class="kpi-sub">No new data since 21 Sep</div>
+            </div>
+            <div class="kpi-tile red">
+              <div class="kpi-lbl">Last ingest</div>
+              <div class="kpi-val" style="font-size:14px;color:var(--red);margin-top:4px">✗ 21 Sep 03:14 AM</div>
+              <div class="kpi-sub">72 hours ago</div>
+            </div>
+            <div class="kpi-tile red">
+              <div class="kpi-lbl">z/OSMF</div>
+              <div class="kpi-val" style="font-size:14px;color:var(--red);margin-top:4px">✗ Unreachable</div>
+              <div class="kpi-sub">ECONNREFUSED · port 9443</div>
+            </div>
+            <div class="kpi-tile red">
+              <div class="kpi-lbl">Next ingest</div>
+              <div class="kpi-val" style="font-size:14px;color:var(--text-muted);margin-top:4px">Blocked</div>
+              <div class="kpi-sub">Will retry at 25 Sep 03:00 AM</div>
+            </div>
+          </div>
+
+          <!-- LPAR TABLE — all stale -->
+          <div class="card">
+            <div class="card-head"><div class="card-title">LPAR data freshness</div></div>
+            <table>
+              <thead><tr><th>System ID</th><th>Display name</th><th>Last SMF record</th><th>Age</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr class="row-fail"><td class="mono" style="font-weight:700">PROD1</td><td class="td-sec">Production 1</td><td class="mono" style="color:var(--red);font-size:12px">21 Sep 23:45</td><td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:5%;background:var(--red)"></div></div><span class="fresh-label fresh-fail">72h behind</span></div></td><td><span class="badge fail">Stale</span></td></tr>
+                <tr class="row-fail"><td class="mono" style="font-weight:700">PROD2</td><td class="td-sec">Production 2</td><td class="mono" style="color:var(--red);font-size:12px">21 Sep 23:30</td><td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:5%;background:var(--red)"></div></div><span class="fresh-label fresh-fail">72h behind</span></div></td><td><span class="badge fail">Stale</span></td></tr>
+                <tr class="row-fail"><td class="mono" style="font-weight:700">TEST1</td><td class="td-sec">Test / QA</td><td class="mono" style="color:var(--red);font-size:12px">21 Sep 23:00</td><td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:5%;background:var(--red)"></div></div><span class="fresh-label fresh-fail">73h behind</span></div></td><td><span class="badge fail">Stale</span></td></tr>
+                <tr class="row-fail"><td class="mono" style="font-weight:700">DR1</td><td class="td-sec">Disaster Recovery</td><td class="mono" style="color:var(--red);font-size:12px">21 Sep 21:30</td><td><div class="fresh-wrap"><div class="fresh-bar"><div class="fresh-fill" style="width:5%;background:var(--red)"></div></div><span class="fresh-label fresh-fail">74h behind</span></div></td><td><span class="badge fail">Stale</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ZOSMF DETAIL -->
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title">z/OSMF — connection failure detail</div></div>
+              <span class="badge fail">Unreachable</span>
+            </div>
+            <div class="card-body">
+              <div class="exp-grid" style="margin-bottom:14px">
+                <span class="exp-k">Host</span><span class="exp-v">zosmf.contoso.com:9443</span>
+                <span class="exp-k">Error</span><span class="exp-v fail">ECONNREFUSED — no response on TCP port 9443</span>
+                <span class="exp-k">Last success</span><span class="exp-v">21 Sep 2026 03:14 AM</span>
+                <span class="exp-k">Windows missed</span><span class="exp-v fail">22 Sep 03:00 AM · 23 Sep 03:00 AM</span>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:12px">
+                <div style="font-weight:600;color:var(--text-sec);margin-bottom:8px">What to check on the mainframe</div>
+                <ol style="padding-left:16px;color:var(--text-sec);line-height:2">
+                  <li>Is the z/OSMF started task running? — <span class="mono" style="color:var(--text-link)">D A,IZUSVR1</span></li>
+                  <li>Can this USS LPAR reach port 9443? — check AT-TLS rules and firewall changes since Tuesday.</li>
+                  <li>Was z/OSMF deliberately stopped? — check your change calendar for 22 Sep.</li>
+                </ol>
+                <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+                  <button class="btn btn-s btn-sm" onclick="toast('Diagnostic info copied','ok')">⧉ Copy diagnostic info</button>
+                  <button class="btn btn-p btn-sm" onclick="go('s7');toast('Once z/OSMF is restored, trigger the backfill from here','info')">Go to Run History →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+  <button class="ai-fab">✦</button>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 3 — LPARs
+     What it shows: The 4 LPARs found in the SMF data.
+     You can rename them and tag them. You can't add or
+     remove them — they come from the data.
+     Hardware and intervals are detected, shown read-only.
+     Cost rate lives here because it's the only number
+     the client genuinely owns.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s3">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item on"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">LPARs</div>
+          <div class="page-desc">Your LPARs were found automatically from the system IDs in your SMF records. Give each one a name your team recognises. Suppress findings for test or DR systems so they don't appear in your dashboard.</div>
+
+          <div class="banner info" style="margin-bottom:14px">
+            <div class="b-icon">ℹ</div>
+            <div class="b-body">
+              <div class="b-desc">Hardware model, engine count, MSU entitlement, and RMF interval are read from your SMF data — you don't enter them. If they look wrong, check with your systems team whether SMF type 1/2 records are in your GDG.</div>
+            </div>
+          </div>
+
+          <!-- LPAR EDIT TABLE -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">4 LPARs discovered</div>
+                <div class="card-desc">Edit display names and settings below. Changes apply immediately.</div>
+              </div>
+              <button class="btn btn-p btn-sm" onclick="toast('Changes saved','ok')">Save changes</button>
+            </div>
+
+            <div class="lpar-list">
+              <!-- HEADER ROW -->
+              <div class="lpar-col-heads">
+                <span style="width:64px;flex-shrink:0">System ID</span>
+                <span style="width:12px;flex-shrink:0"></span>
+                <span style="flex:1;min-width:120px">Display name</span>
+                <span style="width:110px;flex-shrink:0">Environment</span>
+                <span style="width:120px;flex-shrink:0">Suppress findings</span>
+                <span style="flex-shrink:0;max-width:200px">Detected hardware</span>
+              </div>
+
+              <div class="lpar-row">
+                <span class="lpar-sysid">PROD1</span>
+                <span class="lpar-arrow">→</span>
+                <input class="lpar-name-inp" value="Production 1" placeholder="Display name">
+                <select class="lpar-env-sel"><option selected>Production</option><option>Test</option><option>DR</option><option>Dev</option></select>
+                <label class="lpar-suppress"><input type="checkbox"> Suppress</label>
+                <span class="lpar-hw">IBM z15 · 2 CP · 13,065 MSU · 15-min RMF</span>
+              </div>
+
+              <div class="lpar-row">
+                <span class="lpar-sysid">PROD2</span>
+                <span class="lpar-arrow">→</span>
+                <input class="lpar-name-inp" value="Production 2" placeholder="Display name">
+                <select class="lpar-env-sel"><option selected>Production</option><option>Test</option><option>DR</option><option>Dev</option></select>
+                <label class="lpar-suppress"><input type="checkbox"> Suppress</label>
+                <span class="lpar-hw">IBM z15 · 1 CP · 8,120 MSU · 15-min RMF</span>
+              </div>
+
+              <div class="lpar-row">
+                <span class="lpar-sysid">TEST1</span>
+                <span class="lpar-arrow">→</span>
+                <input class="lpar-name-inp" value="Test / QA" placeholder="Display name">
+                <select class="lpar-env-sel"><option>Production</option><option selected>Test</option><option>DR</option><option>Dev</option></select>
+                <label class="lpar-suppress"><input type="checkbox" checked> Suppress</label>
+                <span class="lpar-hw">IBM z15 · 1 CP · 4,000 MSU · 30-min RMF</span>
+              </div>
+
+              <div class="lpar-row">
+                <span class="lpar-sysid">DR1</span>
+                <span class="lpar-arrow">→</span>
+                <input class="lpar-name-inp" value="Disaster Recovery" placeholder="Display name">
+                <select class="lpar-env-sel"><option>Production</option><option>Test</option><option selected>DR</option><option>Dev</option></select>
+                <label class="lpar-suppress"><input type="checkbox" checked> Suppress</label>
+                <span class="lpar-hw">IBM z15 · 2 CP · 13,065 MSU · intermittent</span>
+              </div>
+            </div>
+
+            <div style="padding:12px 18px;border-top:1px solid var(--border-light);display:flex;gap:8px">
+              <button class="btn btn-p" onclick="toast('LPAR settings saved','ok')">Save changes</button>
+              <button class="btn btn-g" onclick="toast('Discarded','info')">Discard</button>
+            </div>
+          </div>
+
+          <!-- COST RATE — the one number the client owns -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Chargeback rate</div>
+                <div class="card-desc">Used to estimate job cost in the Job Activity report from SMF 30 CPU seconds</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-row" style="margin-bottom:0">
+                <div class="form-field" style="max-width:200px">
+                  <label class="form-label">Cost per CPU second ($)</label>
+                  <input class="form-input" value="0.004" placeholder="e.g. 0.004">
+                  <span class="form-helper">Your internal chargeback rate. Ask your finance team. Estimated costs in reports are labelled as estimates — not billing.</span>
+                </div>
+              </div>
+              <div class="form-actions" style="margin-top:12px">
+                <button class="btn btn-p" onclick="toast('Chargeback rate saved','ok')">Save</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 4 — INGEST SCHEDULE
+     What it shows: One field — what time should the
+     portal read the next GDG generation each day.
+     Set it after your archival batch finishes.
+     Preview of what the next run will do.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s4">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item on"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">Ingest Schedule</div>
+          <div class="page-desc">When the portal reads the next GDG generation from z/OSMF each day. Set this to run after your nightly batch archival job finishes, so the dataset is fully written before the portal reads it.</div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-title">Daily run time</div></div>
+            <div class="card-body">
+              <div class="form-row" style="align-items:flex-end;margin-bottom:0">
+                <div class="form-field xnarrow">
+                  <label class="form-label">Run at (daily)</label>
+                  <input class="form-input" type="time" value="03:00" id="sched-time" oninput="updateSchedPreview()">
+                </div>
+                <div style="font-size:12px;color:var(--text-sec);padding-bottom:6px;flex:1">
+                  Set 1–2 hours after your archival batch typically completes. If the ingest tries to read while the archival job is still writing, it will wait up to 30 minutes and retry.
+                </div>
+              </div>
+              <div style="margin-top:16px;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--text-sec)" id="sched-preview">
+                Next run: <strong style="color:var(--text)">25 Sep 2026 · 03:00 AM</strong> — will read <span class="mono" style="color:var(--text-link)">PROD.SMF.GDG(0)</span> (most recent unprocessed generation)
+              </div>
+              <div class="form-actions" style="margin-top:14px">
+                <button class="btn btn-p" onclick="toast('Schedule saved — next run 25 Sep 03:00 AM','ok')">Save schedule</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- MANUAL TRIGGER -->
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <div class="card-title">Run now</div>
+                <div class="card-desc">Don't wait until tonight. Useful after a failed run or when you need fresh data immediately.</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px;display:flex;align-items:center;gap:14px">
+                  <div style="flex:1">
+                    <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px">Most recent unprocessed generation</div>
+                    <div style="font-size:12px;color:var(--text-muted)">Reads <span class="mono">PROD.SMF.GDG(0)</span> if it hasn't been ingested yet. If it has, nothing happens.</div>
+                  </div>
+                  <button class="btn btn-p" onclick="go('s9');toast('Ingest started — reading PROD.SMF.GDG(0)','ok')">Run now</button>
+                </div>
+                <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:12px 16px">
+                  <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px">Backfill a date range</div>
+                  <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Use this after a z/OSMF outage to recover missed days. The portal processes each missed generation in order.</div>
+                  <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap">
+                    <div class="form-field xnarrow" style="margin-bottom:0">
+                      <label class="form-label">From</label>
+                      <input class="form-input" type="date" value="2026-09-22">
+                    </div>
+                    <div class="form-field xnarrow" style="margin-bottom:0">
+                      <label class="form-label">To</label>
+                      <input class="form-input" type="date" value="2026-09-23">
+                    </div>
+                    <button class="btn btn-p" onclick="go('s9');toast('Backfill queued — 22–23 Sep · 2 generations','ok')" style="margin-bottom:0">Backfill</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 5 — THRESHOLDS
+     What it shows: Four values the client owns.
+     Each one has a plain explanation of why it exists
+     and what a realistic value looks like.
+     Nothing else — no rule weights, no AI tuning.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s5">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item on"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">Thresholds</div>
+          <div class="page-desc">These four values reflect your environment's limits. A finding fires when one of them is breached. Set values that match your operational agreements — not system defaults.</div>
+
+          <div class="banner info" style="margin-bottom:14px">
+            <div class="b-icon">ℹ</div>
+            <div class="b-body">
+              <div class="b-desc">Rule sensitivity and detection logic are calibrated by Maintec for your environment and updated with each software release. These four thresholds are yours to set — they represent your organisation's SLAs and budget limits.</div>
+            </div>
+          </div>
+
+          <div class="thresh-grid">
+            <div class="thresh-tile">
+              <div class="thresh-lbl">CPU warning threshold</div>
+              <div class="thresh-why">A HIGH finding fires when peak CPU dispatch on any production LPAR exceeds this percentage of its entitled MSU. 80% is a common starting point — adjust to match your capacity planning SLA.</div>
+              <div class="thresh-inp-row">
+                <input class="thresh-inp" value="80" type="number" min="1" max="100">
+                <span class="thresh-unit">% of entitled MSU</span>
+              </div>
+            </div>
+            <div class="thresh-tile">
+              <div class="thresh-lbl">Daily cost limit</div>
+              <div class="thresh-why">A HIGH finding fires when estimated daily run cost exceeds this. Set it to your department's daily compute budget or the point at which someone needs to review a cost spike.</div>
+              <div class="thresh-inp-row">
+                <input class="thresh-inp" value="15000" type="number" min="0">
+                <span class="thresh-unit">$ per run</span>
+              </div>
+            </div>
+            <div class="thresh-tile">
+              <div class="thresh-lbl">DB2 buffer pool hit ratio</div>
+              <div class="thresh-why">A MEDIUM finding fires when any DB2 buffer pool's hit ratio drops below this. IBM recommends ≥95% for production DB2 — lower means more physical disk reads. Only applies if DB2 data is present.</div>
+              <div class="thresh-inp-row">
+                <input class="thresh-inp" value="95" type="number" min="1" max="100">
+                <span class="thresh-unit">% minimum</span>
+              </div>
+            </div>
+            <div class="thresh-tile">
+              <div class="thresh-lbl">Data staleness alert</div>
+              <div class="thresh-why">An LPAR shows as Stale in System Health and a banner appears on the dashboard when its most recent SMF record is older than this. Set to about 1.5× your ingest cadence (daily ingest → 26–30h is typical).</div>
+              <div class="thresh-inp-row">
+                <input class="thresh-inp" value="26" type="number" min="1">
+                <span class="thresh-unit">hours</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">
+            Changes take effect on the next ingestion run, not retroactively. Existing findings from the previous run are not recalculated.
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-p" onclick="toast('Thresholds saved — effective on next ingest run','ok')">Save thresholds</button>
+            <button class="btn btn-g" onclick="toast('Discarded','info')">Discard</button>
+          </div>
+
+          <!-- DB2 DATA COMPLETENESS — only shown if DB2 is present -->
+          <div class="card" style="margin-top:20px">
+            <div class="card-head">
+              <div>
+                <div class="card-title">DB2 data completeness</div>
+                <div class="card-desc">Two DB2 configuration items were detected as missing from your SMF data — they affect which findings fire</div>
+              </div>
+            </div>
+            <div class="db2-notice">
+              <div class="db2-n-icon">⚠</div>
+              <div>
+                <div class="db2-n-title">DB2 accounting CLASS 3 is not active</div>
+                <div class="db2-n-desc">Lock wait times in the DB2 Accounting report show as zero. Lock contention findings won't fire. To enable: add <span class="db2-n-code">ACCOUNTNG(CLASS(3))</span> to your DB2 DDF startup procedure — this requires a DDF restart only, not a full DB2 recycle.</div>
+              </div>
+            </div>
+            <div class="db2-notice">
+              <div class="db2-n-icon">⚠</div>
+              <div>
+                <div class="db2-n-title">DB2 statistics interval appears to be off (STATIME=0)</div>
+                <div class="db2-n-desc">Only one buffer pool SMF 101 record per DB2 startup was detected — consistent with shutdown-only statistics. Buffer pool trend charts will be sparse. To fix: set <span class="db2-n-code">STATIME 30</span> in DSNZPARM and recycle DB2.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 6 — USERS
+     What it shows: Who has access. Two roles.
+     Invite someone, revoke access. That's it.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s6">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item" onclick="go('s7')"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item on"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">Users</div>
+          <div class="page-desc">Everyone in your organisation who can access this portal. Analysts can do everything. Viewers can see all reports and findings but can't change settings or trigger ingests.</div>
+
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <span style="font-size:13px;font-weight:600;color:var(--text)">5 users</span>
+              <div class="ml-a">
+                <button class="btn btn-p btn-sm" onclick="openModal('m-invite')">+ Invite user</button>
+              </div>
+            </div>
+            <table>
+              <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last active</th><th style="width:40px"></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div style="font-weight:500">Sarah Chen</div>
+                    <div class="user-row-meta">You</div>
+                  </td>
+                  <td class="td-sec">sarah.chen@contoso.com</td>
+                  <td><span class="badge info">Analyst</span></td>
+                  <td class="td-muted" style="font-size:12px">Just now</td>
+                  <td></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:500">Marcus Webb</div></td>
+                  <td class="td-sec">m.webb@contoso.com</td>
+                  <td><span class="badge info">Analyst</span></td>
+                  <td class="td-muted" style="font-size:12px">2h ago</td>
+                  <td><button class="btn-ghost-danger btn-sm" onclick="openModal('m-revoke')">Revoke</button></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:500">Priya Nair</div></td>
+                  <td class="td-sec">p.nair@contoso.com</td>
+                  <td><span class="badge neu">Viewer</span></td>
+                  <td class="td-muted" style="font-size:12px">Yesterday</td>
+                  <td><button class="btn-ghost-danger btn-sm" onclick="openModal('m-revoke')">Revoke</button></td>
+                </tr>
+                <tr>
+                  <td><div style="font-weight:500">David Okafor</div></td>
+                  <td class="td-sec">d.okafor@contoso.com</td>
+                  <td><span class="badge neu">Viewer</span></td>
+                  <td class="td-muted" style="font-size:12px">3 days ago</td>
+                  <td><button class="btn-ghost-danger btn-sm" onclick="openModal('m-revoke')">Revoke</button></td>
+                </tr>
+                <tr>
+                  <td>
+                    <div style="font-weight:500;color:var(--text-muted)">Invited — pending</div>
+                    <div class="user-row-meta">Invite sent 23 Sep</div>
+                  </td>
+                  <td class="td-muted">j.smith@contoso.com</td>
+                  <td><span class="badge neu">Analyst</span></td>
+                  <td class="td-muted" style="font-size:12px">—</td>
+                  <td><button class="btn-ghost-danger btn-sm" onclick="toast('Invite cancelled','ok')">Cancel</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- ROLE EXPLANATION -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:14px">
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">Analyst</div>
+              <ul style="font-size:12px;color:var(--text-sec);padding-left:16px;line-height:1.9">
+                <li>View all reports, findings, recommendations</li>
+                <li>Trigger ingests and backfills</li>
+                <li>Change thresholds and schedule</li>
+                <li>Manage users</li>
+                <li>Access advanced settings</li>
+              </ul>
+            </div>
+            <div style="background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:14px">
+              <div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:6px">Viewer</div>
+              <ul style="font-size:12px;color:var(--text-sec);padding-left:16px;line-height:1.9">
+                <li>View all reports, findings, recommendations</li>
+                <li>Export CSV and PDF</li>
+                <li>Use AI assistant</li>
+                <li style="color:var(--text-muted)">Cannot change settings or trigger ingests</li>
+                <li style="color:var(--text-muted)">Cannot manage users</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- INVITE MODAL -->
+<div class="mbd" id="m-invite">
+  <div class="modal" style="width:420px">
+    <div class="m-head">
+      <div><div class="m-title">Invite a user</div><div class="m-sub">They'll receive an email with a link to set their password</div></div>
+      <button class="m-close" onclick="closeModal('m-invite')">✕</button>
+    </div>
+    <div class="m-body">
+      <div class="form-row" style="margin-bottom:12px">
+        <div class="form-field">
+          <label class="form-label">Email address <span class="req">*</span></label>
+          <input class="form-input" type="email" placeholder="colleague@contoso.com">
+        </div>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <div class="form-field">
+          <label class="form-label">Role <span class="req">*</span></label>
+          <select class="form-select"><option>Analyst</option><option>Viewer</option></select>
+          <span class="form-helper">Analysts can change settings and trigger ingests. Viewers can only read.</span>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-g" onclick="closeModal('m-invite')">Cancel</button>
+      <button class="btn btn-p" onclick="closeModal('m-invite');toast('Invite sent','ok')">Send invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- REVOKE MODAL -->
+<div class="mbd" id="m-revoke">
+  <div class="modal" style="width:380px">
+    <div class="m-head"><div><div class="m-title">Revoke access?</div></div><button class="m-close" onclick="closeModal('m-revoke')">✕</button></div>
+    <div class="m-body">
+      <p style="font-size:13px;color:var(--text-sec);line-height:1.6">Marcus Webb will immediately lose access to SMF Analytics. Any active sessions will be invalidated.</p>
+    </div>
+    <div class="m-foot">
+      <button class="btn btn-g" onclick="closeModal('m-revoke')">Cancel</button>
+      <button class="btn" style="background:var(--red);color:#fff" onclick="closeModal('m-revoke');toast('Access revoked — Marcus Webb','ok')">Revoke access</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 7 — RUN HISTORY
+     What it shows: Every ingest attempt.
+     What matters: date, how many records, which LPARs
+     reported, parse success rate, findings generated,
+     how long it took, did it succeed.
+     Click a failed row to see why and what to do.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s7">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item on"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">Run History</div>
+          <div class="page-desc">Every ingest attempt since go-live. Click a row to see detail. Click "Backfill" on a failed run to re-process it.</div>
+
+          <div class="tbl-wrap">
+            <div class="tbl-head">
+              <span style="font-size:13px;font-weight:600;color:var(--text)">215 runs since 1 Jan 2026</span>
+              <div class="ml-a">
+                <button class="btn btn-s btn-sm" onclick="go('s4')">▶ Trigger ingest</button>
+              </div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:8px"></th>
+                  <th>Date</th>
+                  <th>Records</th>
+                  <th>LPARs</th>
+                  <th>Parse rate</th>
+                  <th>Findings</th>
+                  <th>Duration</th>
+                  <th>Status</th>
+                  <th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- SUCCESS -->
+                <tr class="cl row-ok" onclick="toggleExp('exp-r1',this)">
+                  <td><div class="run-dot ok"></div></td>
+                  <td class="mono" style="font-weight:600;font-size:12px">24 Sep 2026</td>
+                  <td class="mono">4,832,441</td>
+                  <td class="td-sec" style="font-size:12px">PROD1 · PROD2 · TEST1</td>
+                  <td class="td-green mono">99.97%</td>
+                  <td class="mono">7</td>
+                  <td class="td-sec" style="font-size:12px">47m 12s</td>
+                  <td><span class="badge ok">OK</span></td>
+                  <td></td>
+                </tr>
+                <tr class="exp-row" id="exp-r1" style="display:none">
+                  <td colspan="9">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">GDG generation</span><span class="exp-v">0215</span>
+                        <span class="exp-k">Started at</span><span class="exp-v">24 Sep 03:00:14 AM</span>
+                        <span class="exp-k">Completed at</span><span class="exp-v">24 Sep 03:47:26 AM</span>
+                        <span class="exp-k">DR1 in generation</span><span class="exp-v warn">No — DR1 absent from generation 0215. See System Health for detail.</span>
+                        <span class="exp-k">Parse warnings</span><span class="exp-v ok">None</span>
+                        <span class="exp-k">SMF types processed</span><span class="exp-v">14 · 30 · 70 · 72 · 89 · 100 · 101</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- FAILED — z/OSMF -->
+                <tr class="cl row-fail" onclick="toggleExp('exp-r2',this)">
+                  <td><div class="run-dot fail"></div></td>
+                  <td class="mono" style="font-weight:600;font-size:12px;color:var(--red)">23 Sep 2026</td>
+                  <td class="mono td-muted">—</td>
+                  <td class="td-muted" style="font-size:12px">—</td>
+                  <td class="td-muted">—</td>
+                  <td class="td-muted">—</td>
+                  <td class="td-muted" style="font-size:12px">0s</td>
+                  <td><span class="badge fail">Failed</span></td>
+                  <td><button class="btn btn-s btn-sm" onclick="event.stopPropagation();go('s9');toast('Backfill queued for 23 Sep','ok')">Backfill</button></td>
+                </tr>
+                <tr class="exp-row" id="exp-r2" style="display:none">
+                  <td colspan="9">
+                    <div class="exp-inner">
+                      <div class="exp-grid" style="margin-bottom:10px">
+                        <span class="exp-k">Attempted at</span><span class="exp-v">23 Sep 03:00 AM</span>
+                        <span class="exp-k">Error</span><span class="exp-v fail">z/OSMF unreachable — ECONNREFUSED on zosmf.contoso.com:9443</span>
+                        <span class="exp-k">Retries</span><span class="exp-v">3 of 3 — all failed within 30 minutes</span>
+                        <span class="exp-k">Data impact</span><span class="exp-v warn">23 Sep mainframe data not available. Dashboard KPIs reflect 21 Sep only.</span>
+                      </div>
+                      <button class="btn btn-p btn-sm" onclick="go('s9');toast('Backfill queued for 23 Sep','ok')">Backfill 23 Sep now</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- FAILED — z/OSMF -->
+                <tr class="cl row-fail" onclick="toggleExp('exp-r3',this)">
+                  <td><div class="run-dot fail"></div></td>
+                  <td class="mono" style="font-weight:600;font-size:12px;color:var(--red)">22 Sep 2026</td>
+                  <td class="mono td-muted">—</td>
+                  <td class="td-muted">—</td>
+                  <td class="td-muted">—</td>
+                  <td class="td-muted">—</td>
+                  <td class="td-muted" style="font-size:12px">0s</td>
+                  <td><span class="badge fail">Failed</span></td>
+                  <td><button class="btn btn-s btn-sm" onclick="event.stopPropagation();go('s9');toast('Backfill queued for 22 Sep','ok')">Backfill</button></td>
+                </tr>
+                <tr class="exp-row" id="exp-r3" style="display:none">
+                  <td colspan="9">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">Error</span><span class="exp-v fail">z/OSMF unreachable — same root cause as 23 Sep</span>
+                      </div>
+                      <button class="btn btn-p btn-sm" style="margin-top:8px" onclick="go('s9');toast('Backfill queued for 22 Sep','ok')">Backfill 22 Sep now</button>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- SUCCESS -->
+                <tr class="cl row-ok" onclick="toggleExp('exp-r4',this)">
+                  <td><div class="run-dot ok"></div></td>
+                  <td class="mono" style="font-weight:600;font-size:12px">21 Sep 2026</td>
+                  <td class="mono">4,791,204</td>
+                  <td class="td-sec" style="font-size:12px">PROD1 · PROD2 · TEST1 · DR1</td>
+                  <td class="td-green mono">99.98%</td>
+                  <td class="mono">5</td>
+                  <td class="td-sec" style="font-size:12px">44m 58s</td>
+                  <td><span class="badge ok">OK</span></td>
+                  <td></td>
+                </tr>
+                <tr class="exp-row" id="exp-r4" style="display:none">
+                  <td colspan="9">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">GDG generation</span><span class="exp-v">0213</span>
+                        <span class="exp-k">DR1 in generation</span><span class="exp-v ok">Yes — 621,204 records</span>
+                        <span class="exp-k">Parse warnings</span><span class="exp-v ok">None</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <!-- PARTIAL -->
+                <tr class="cl row-warn" onclick="toggleExp('exp-r5',this)">
+                  <td><div class="run-dot warn"></div></td>
+                  <td class="mono" style="font-weight:600;font-size:12px;color:var(--amber)">20 Sep 2026</td>
+                  <td class="mono">4,641,882</td>
+                  <td class="td-sec" style="font-size:12px">PROD1 · PROD2</td>
+                  <td class="td-amber mono">97.3%</td>
+                  <td class="mono">9</td>
+                  <td class="td-sec" style="font-size:12px">43m 11s</td>
+                  <td><span class="badge warn">Partial</span></td>
+                  <td></td>
+                </tr>
+                <tr class="exp-row" id="exp-r5" style="display:none">
+                  <td colspan="9">
+                    <div class="exp-inner">
+                      <div class="exp-grid">
+                        <span class="exp-k">GDG generation</span><span class="exp-v">0212</span>
+                        <span class="exp-k">Parse warnings</span><span class="exp-v warn">148,204 SMF 72 records skipped — malformed RDW header in 3 blocks of generation 0212. WLM data for PROD2 between 14:00–15:30 on 20 Sep may be incomplete.</span>
+                        <span class="exp-k">Impact on findings</span><span class="exp-v warn">WLM-02 (workload degradation) finding may not have fired if the degradation occurred in the affected window. All other findings unaffected.</span>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+
+                <tr class="cl row-ok" onclick="toggleExp('exp-r6',this)">
+                  <td><div class="run-dot ok"></div></td>
+                  <td class="mono" style="font-size:12px">19 Sep 2026</td>
+                  <td class="mono">4,811,200</td>
+                  <td class="td-sec" style="font-size:12px">PROD1 · PROD2 · TEST1 · DR1</td>
+                  <td class="td-green mono">99.99%</td>
+                  <td class="mono">4</td>
+                  <td class="td-sec" style="font-size:12px">46m 02s</td>
+                  <td><span class="badge ok">OK</span></td>
+                  <td></td>
+                </tr>
+                <tr class="exp-row" id="exp-r6" style="display:none">
+                  <td colspan="9"><div class="exp-inner"><div class="exp-grid"><span class="exp-k">GDG generation</span><span class="exp-v">0211</span><span class="exp-k">Parse warnings</span><span class="exp-v ok">None</span></div></div></td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="tbl-foot">
+              <span>Showing 6 of 215 runs</span>
+              <button class="btn btn-g btn-sm">Load more</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 8 — EMPTY STATE (first time)
+     What it shows: The client just got the portal.
+     No data yet. Clear message about what's coming
+     and when. One action: trigger now, or wait.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s8">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Dashboard</span></div>
+    <div class="tn-right"><div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div><div class="tn-btn">?</div></div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib on">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib" onclick="go('s1')">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
+
+      <!-- WAITING ANIMATION — just the ring, no page chrome yet -->
+      <div style="text-align:center;max-width:460px">
+        <div style="width:56px;height:56px;border:3px solid var(--purple-light);border-top-color:var(--purple);border-radius:50%;animation:spin 1.1s linear infinite;margin:0 auto 24px"></div>
+        <div style="font-size:20px;font-weight:600;color:var(--text);margin-bottom:8px;letter-spacing:-.3px">Waiting for first ingest</div>
+        <div style="font-size:13px;color:var(--text-sec);line-height:1.7;margin-bottom:24px">
+          Your portal is connected to <span class="mono" style="color:var(--text-link)">PROD.SMF.GDG</span> via z/OSMF. The first data pull is scheduled for tonight at <strong>03:00 AM</strong>. Once it's done, your dashboard, findings, and reports will all be populated.
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+          <button class="btn btn-p" onclick="go('s9');toast('Ingest started — reading PROD.SMF.GDG(0)','ok')">
+            Pull data now instead
+          </button>
+          <span style="font-size:12px;color:var(--text-muted)">or check back in the morning — the portal will be ready</span>
+        </div>
+      </div>
+
+      <!-- WHAT TO EXPECT BELOW -->
+      <div style="margin-top:48px;width:100%;max-width:560px">
+        <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-align:center;margin-bottom:16px;letter-spacing:.04em">WHAT HAPPENS AFTER THE FIRST INGEST</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:5px;padding:14px;text-align:center">
+            <div style="font-size:20px;margin-bottom:6px">⊞</div>
+            <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">Dashboard</div>
+            <div style="font-size:11px;color:var(--text-muted)">CPU, jobs, cost, and findings — all in one place</div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:5px;padding:14px;text-align:center">
+            <div style="font-size:20px;margin-bottom:6px">⚑</div>
+            <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">Findings</div>
+            <div style="font-size:11px;color:var(--text-muted)">Automatically generated from your SMF data</div>
+          </div>
+          <div style="background:var(--white);border:1px solid var(--border);border-radius:5px;padding:14px;text-align:center">
+            <div style="font-size:20px;margin-bottom:6px">✦</div>
+            <div style="font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px">AI analysis</div>
+            <div style="font-size:11px;color:var(--text-muted)">Recommendations and answers to your questions</div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════
+     SCREEN 9 — INGEST RUNNING (live)
+     What it shows: An ingest is in progress.
+     Record count ticking up. Progress by SMF type.
+     LPARs seen so far. You can navigate away — it
+     keeps running. Toast appears when it's done.
+════════════════════════════════════════════════════ -->
+<div class="screen" id="s9">
+  <nav class="topnav">
+    <div class="tn-logo"><div class="tn-logomark">S</div></div>
+    <div class="tn-brand">SMF Analytics</div>
+    <div class="tn-bc"><span class="cur">Settings</span></div>
+    <div class="tn-right">
+      <!-- LIVE INDICATOR IN NAV -->
+      <div class="tn-btn" style="color:var(--purple)">
+        <div style="display:flex;align-items:center;gap:6px;background:var(--purple-light);border:1px solid #c4b5fd;border-radius:10px;padding:3px 10px;font-size:11px;font-weight:500">
+          <div class="spin-ring pulsing"></div> Ingesting
+        </div>
+      </div>
+      <div class="tn-btn"><div class="org-pill">🏢 Contoso Bank ⌄</div></div>
+      <div class="tn-btn">?</div>
+    </div>
+  </nav>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sib">⊞</div><div class="sib">⚑</div><div class="sib">◫</div><div class="sib">◻</div><div class="sib">◈</div>
+      <div class="sib gap" style="margin-top:auto"></div><div class="sib on">⚙</div><div class="sib">👤</div>
+    </aside>
+    <main class="main">
+      <div class="settings-wrap">
+        <nav class="settings-nav">
+          <div class="sn-group-label" style="margin-top:4px">Overview</div>
+          <div class="sn-item" onclick="go('s1')"><span class="sn-icon">◉</span> System Health</div>
+          <div class="sn-item on"><span class="sn-icon">☰</span> Run History</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Configuration</div>
+          <div class="sn-item" onclick="go('s3')"><span class="sn-icon">🖥</span> LPARs</div>
+          <div class="sn-item" onclick="go('s4')"><span class="sn-icon">⏱</span> Ingest Schedule</div>
+          <div class="sn-item" onclick="go('s5')"><span class="sn-icon">⚑</span> Thresholds</div>
+          <div class="sn-divider"></div>
+          <div class="sn-group-label">Access</div>
+          <div class="sn-item" onclick="go('s6')"><span class="sn-icon">👤</span> Users</div>
+          <div class="sn-divider"></div>
+          <div class="adv-toggle">› Advanced</div>
+        </nav>
+        <div class="settings-content">
+          <div class="page-title">Ingest in progress</div>
+          <div class="page-desc">PROD.SMF.GDG(0215) · 25 Sep 2026 · Started 03:00 AM. You can navigate away — this runs in the background.</div>
+
+          <!-- LIVE COUNTS -->
+          <div class="kpi-strip kpi-strip-3" style="margin-bottom:16px">
+            <div class="kpi-tile blue">
+              <div class="kpi-lbl">Records parsed</div>
+              <div class="kpi-val" id="live-count" style="color:var(--purple)">1,204,882</div>
+              <div class="kpi-sub">of ~4.8M expected</div>
+            </div>
+            <div class="kpi-tile blue">
+              <div class="kpi-lbl">LPARs seen so far</div>
+              <div class="kpi-val" style="color:var(--blue)">3</div>
+              <div class="kpi-sub">PROD1 · PROD2 · TEST1</div>
+            </div>
+            <div class="kpi-tile neutral">
+              <div class="kpi-lbl">Parse warnings</div>
+              <div class="kpi-val" style="color:var(--text-muted)">0</div>
+              <div class="kpi-sub">None so far</div>
+            </div>
+          </div>
+
+          <!-- PROGRESS BY SMF TYPE -->
+          <div class="card">
+            <div class="card-head">
+              <div class="card-title">Progress by record type</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--purple)">
+                <div class="spin-ring"></div> Processing
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="prog-row"><span class="prog-label">SMF 30</span><div class="prog-track"><div class="prog-fill" style="width:62%" id="p30"></div></div><span class="prog-pct" id="pp30">62%</span></div>
+              <div class="prog-row"><span class="prog-label">SMF 70</span><div class="prog-track"><div class="prog-fill" style="width:58%" id="p70"></div></div><span class="prog-pct" id="pp70">58%</span></div>
+              <div class="prog-row"><span class="prog-label">SMF 72</span><div class="prog-track"><div class="prog-fill" style="width:55%" id="p72"></div></div><span class="prog-pct" id="pp72">55%</span></div>
+              <div class="prog-row"><span class="prog-label">SMF 100</span><div class="prog-track"><div class="prog-fill" style="width:38%" id="p100"></div></div><span class="prog-pct" id="pp100">38%</span></div>
+              <div class="prog-row"><span class="prog-label">SMF 101</span><div class="prog-track"><div class="prog-fill" style="width:22%" id="p101"></div></div><span class="prog-pct" id="pp101">22%</span></div>
+              <div class="prog-row"><span class="prog-label">SMF 14</span><div class="prog-track"><div class="prog-fill" style="width:70%" id="p14"></div></div><span class="prog-pct" id="pp14">70%</span></div>
+            </div>
+          </div>
+
+          <div class="banner info">
+            <div class="b-icon">ℹ</div>
+            <div class="b-body">
+              <div class="b-desc">The ingest runs in the background. You'll see a notification when it's done. Navigate to any report and your data will refresh once the run completes.</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+    <div class="right-rail"><div class="rrb">ℹ</div><div class="rrb">⧩</div></div>
+  </div>
+  <button class="ai-fab">✦</button>
+</div>
+
+
+<!-- ════════ JAVASCRIPT ════════ -->
+<script>
+const screens = ['s1','s2','s3','s4','s5','s6','s7','s8','s9'];
+
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  const sc = document.getElementById(id);
+  if (sc) sc.classList.add('on');
+  document.querySelectorAll('.pb').forEach((b, i) => b.classList.toggle('on', screens[i] === id));
+  window.scrollTo(0, 0);
+  if (id === 's9') startLiveIngest();
+  else clearInterval(countInterval);
+  if (id === 's1' || id === 's2') buildGDG(id === 's1');
+}
+
+/* ── GDG generation strip ── */
+function buildGDG(healthy) {
+  const el = document.getElementById('gdg1');
+  if (!el) return;
+  const states = healthy
+    ? ['ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','partial','ok','ok','ok','ok','absent','ok','ok','ok','ok','ok','ok','ok','ok','ok']
+    : ['ok','ok','ok','ok','ok','ok','ok','ok','ok','ok','fail','fail','ok','ok','ok','partial','ok','ok','ok','ok','absent','fail','fail','fail','ok','ok','ok','ok','ok','ok'];
+  const h = { ok: 28, partial: 20, fail: 14, absent: 8 };
+  const title = { ok: 'Ingested', partial: 'Partial parse', fail: 'Failed', absent: 'Empty / absent' };
+  el.innerHTML = states.map((s, i) =>
+    `<div class="gdg-bar ${s}" style="height:${h[s]}px" title="Gen ${186+i}: ${title[s]}"></div>`
+  ).join('');
+}
+
+/* ── expand/collapse table rows ── */
+function toggleExp(rowId, tr) {
+  const r = document.getElementById(rowId);
+  if (!r) return;
+  const open = r.style.display !== 'none';
+  r.style.display = open ? 'none' : 'table-row';
+}
+
+/* ── live ingest counter ── */
+let countInterval;
+function startLiveIngest() {
+  let n = 1204882;
+  const progs = [
+    {id:'p30',pp:'pp30',v:62},
+    {id:'p70',pp:'pp70',v:58},
+    {id:'p72',pp:'pp72',v:55},
+    {id:'p100',pp:'pp100',v:38},
+    {id:'p101',pp:'pp101',v:22},
+    {id:'p14',pp:'pp14',v:70},
+  ];
+  clearInterval(countInterval);
+  countInterval = setInterval(() => {
+    n += Math.floor(Math.random() * 9000 + 4000);
+    const el = document.getElementById('live-count');
+    if (el) el.textContent = n.toLocaleString();
+    progs.forEach(p => {
+      if (p.v < 99) {
+        p.v = Math.min(99, p.v + Math.random() * 1.2);
+        const fill = document.getElementById(p.id);
+        const pct = document.getElementById(p.pp);
+        if (fill) fill.style.width = Math.round(p.v) + '%';
+        if (pct) pct.textContent = Math.round(p.v) + '%';
+      }
+    });
+  }, 700);
+}
+
+/* ── schedule preview ── */
+function updateSchedPreview() {
+  const t = document.getElementById('sched-time');
+  const p = document.getElementById('sched-preview');
+  if (!t || !p) return;
+  p.innerHTML = `Next run: <strong style="color:var(--text)">25 Sep 2026 · ${t.value}</strong> — will read <span class="mono" style="color:var(--text-link)">PROD.SMF.GDG(0)</span> (most recent unprocessed generation)`;
+}
+
+/* ── modals ── */
+function openModal(id) { document.getElementById(id).classList.add('on'); }
+function closeModal(id) { document.getElementById(id).classList.remove('on'); }
+document.addEventListener('click', e => {
+  if (e.target.classList.contains('mbd')) e.target.classList.remove('on');
+});
+
+/* ── toasts ── */
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icons = { ok: '✓', fail: '✗', info: 'ℹ', warn: '⚠' };
+  t.innerHTML = `<span style="font-size:13px;flex-shrink:0">${icons[type]||'ℹ'}</span><span style="flex:1">${msg}</span><span class="t-x" onclick="this.parentElement.remove()">✕</span>`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+/* ── init ── */
+window.addEventListener('load', () => {
+  buildGDG(true);
+});
+window.addEventListener('resize', () => {
+  if (document.getElementById('gdg1') && document.getElementById('s1').classList.contains('on')) buildGDG(true);
+});
+</script>
+</body>
+</html>
